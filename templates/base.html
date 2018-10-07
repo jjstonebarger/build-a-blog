@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+    <head>
+        <title>{{title}}</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    </head>
+<body>
+    <main>
+        <nav>
+            <a href='/blog'>List all grievances<br />(oldest-first)</a>
+            <a href='/blog?sort=newest'>List all grievances<br />(newest-first)</a>
+            <a href='/newpost'>Create new grievance</a>
+        </nav>
+
+        <div class="container">
+            {% with messages = get_flashed_messages() %}
+                {% for message in messages %}
+                    <div class="flash_message">{{message|safe}}</div>
+                {% endfor %}
+            {% endwith %}
+
+            {% block content %}
+            {% endblock %}
+
+        </div> 
+    </main>
+
+</body>
+</html>

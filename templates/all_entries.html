@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Sad Cat Diary</h1>
+    <ul>
+        {% for entry in all_entries %}
+            <li>
+                <h2>
+                    <a href="/blog?id={{ entry.id }}">{{ entry.title }}</a>
+                </h2>
+                <p>{{ entry.body }}</p>
+                <p>{{ entry.created }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

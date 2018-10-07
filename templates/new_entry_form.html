@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>What injustice afflicts thee?</h1>
+<form action="/newpost" method="post">
+
+        <label for="title_field">Title:</label>
+        <input id="title_field" name="title" type="text" value="{{ new_entry_title }}">
+
+        <label for="body_field">How would you summarize your suffering?</label>
+        <textarea rows="4" cols="50" id="body_field" name="body" >{{ new_entry_body }}</textarea>
+
+    <input id="submit_button" type="submit" value="Save">
+</form>
+{% endblock %}
