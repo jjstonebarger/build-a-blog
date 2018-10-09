@@ -23,23 +23,50 @@ Display the posts in order of most recent to the oldest (the opposite of the cur
 
 
 from flask import Flask, request, redirect, render_template, flash
+
 from flask_sqlalchemy import SQLAlchemy
+# ^^^ SQLAlchemy is a class that enables Python applications to "talk to" databases. It is able to work with 
+# several SQL-based database engines.
+
 from datetime import datetime
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://build-a-blog:OTcbo7X64K8dXrte@localhost:8889/build-a-blog'
+# ^^^ This line adds a new entry to the app.config dictionary, with key 'SQLALCHEMY_DATABASE_URI. The SQLAlchemy 
+# module will use this string to connect to our MySQL database. This string is a regular source of database 
+# connection problems. If any portion of it isn't exactly correct, our app won't be able to connect properly.
+
 app.config['SQLALCHEMY_ECHO'] = True
+# ^^^ Enabling this setting will turn on query logging. In other words, when our app does anything that results 
+# in a database query being executed, the query that SQLAlchemy generates and executes will be logged to the 
+# terminal that our app is running within.
+
 db = SQLAlchemy(app)
+# ^^^ Create a database connection and interface for our app. We'll use the db object throughout our app, 
+# and it will allow us to interact with the database via our Flask/Python code.
+
 app.secret_key = 'VWhwTnBcANvmSTLJ'
 
 
 class Entry(db.Model):
+    # ^^^ Creates a class that extends the db.Model class. By extending this class, we'll get a lot of 
+    # functionality that will allow our class to be managed by SQLAlchemy, and thus stored in the database.
    
     id = db.Column(db.Integer, primary_key=True)
+    # ^^^ Creates a new property of our class that will map to an integer column in the Entry table. 
+    # The column name will be generated from the property name to be id as well. The column will be a 
+    # primary key column on the table.
+
     title = db.Column(db.String(180))
+    # ^^^ Creates a property that will map to a column of type String(180) in the Entry table.
+
     body = db.Column(db.String(1000))
+
     created = db.Column(db.DateTime)
+    # ^^^ Creates a property completed that will map to a column of type BOOL, which is actually a TINYINT 
+    # column with a constraint that it can only hold 0 or 1.
 
     def __init__(self, title, body ):
         self.title = title
@@ -64,12 +91,20 @@ def display_blog_entries():
    
     entry_id = request.args.get('id')
     if (entry_id):
+
         entry = Entry.query.get(entry_id)
+        # ^^^ Calling query.get() will query for the specific object/row by it's primary key.
+
         return render_template('single_entry.html', title="Grievance Entry", entry=entry)
 
     sort = request.args.get('sort')
     if (sort=="newest"):
+
         all_entries = Entry.query.order_by(Entry.created.desc()).all()
+        # ^^^ Every class that extends db.Model will have a query property attached to it. 
+        # This query object contains lots of useful methods for querying the database for data 
+        # from the associate table(s).
+
     else:
         all_entries = Entry.query.all()   
     return render_template('all_entries.html', title="All Grievances", all_entries=all_entries)
@@ -81,11 +116,19 @@ def new_entry():
     if request.method == 'POST':
         new_entry_title = request.form['title']
         new_entry_body = request.form['body']
+
         new_entry = Entry(new_entry_title, new_entry_body)
+        # ^^^ To create an instance of our persistent Entry class, we use the same syntax as always.
 
         if new_entry.is_valid():
+
             db.session.add(new_entry)
+            # ^^^ Our ORM system, SQLAlchemy, does not know about our new object until we notify it 
+            # that we want our object to be stored in the database. This is done by calling db.session.add().
+
             db.session.commit()
+            # ^^^ Our changes and additions to the database aren't actually run against the database 
+            # until we commit the session.
 
             url = "/blog?id=" + str(new_entry.id)
             return redirect(url)
@@ -101,3 +144,6 @@ def new_entry():
 
 if __name__ == '__main__':
     app.run()
+    # ^^^ We added this conditional to allow us to import objects and classes from code outside of this 
+    # file in a way that doesn't run the application. In particular, we'll want to import db and Task 
+    # within a Python shell.
